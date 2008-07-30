@@ -1,0 +1,19 @@
+#--------------------------------------------------
+# specify CSCSkim parameters and cuts.
+#
+# Types of skims:   (typeOfSkim control word)
+#    1  = loose skim demanding hit chambers and/or segments
+#    2  = ask for hit chambers in both endcaps
+#    3  = segments in neighboring chambers - good for alignment
+#
+#--------------------------------------------------
+module cscSkim = CSCSkim{
+    untracked int32     typeOfSkim         = 1
+    untracked string    rootFileName       = 'outputDummy.root'
+    untracked string    histogramFileName  = 'histos.root'
+    untracked int32     nLayersWithHitsMinimum = 3
+    untracked int32     minimumHitChambers = 2
+    untracked int32     minimumSegments    = 1
+    untracked bool      demandChambersBothSides = false
+    untracked book      makeHistograms          = false
+}
