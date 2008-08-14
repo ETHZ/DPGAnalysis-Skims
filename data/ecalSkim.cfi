@@ -1,0 +1,11 @@
+module skimming = EcalSkim
+{
+
+ //cosmic cluster energy threshold in GeV
+ untracked double energyCutEB = 2.0 
+ untracked double energyCutEE = 10.0 
+
+ InputTag barrelClusterCollection = cosmicSuperClusters:CosmicBarrelSuperClusters
+ InputTag endcapClusterCollection = cosmicSuperClusters:CosmicEndcapSuperClusters
+
+}
