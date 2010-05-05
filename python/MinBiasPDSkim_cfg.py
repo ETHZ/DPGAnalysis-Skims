@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.14 $'),
+    version = cms.untracked.string('$Revision: 1.24 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -16,16 +16,28 @@ process.configurationMetadata = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
 # run 132440
-'/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/440/26C8DED9-0E3C-DF11-9D83-0030487CD7B4.root'),
-                           secondaryFileNames = cms.untracked.vstring(
-'/store/data/Commissioning10/MinimumBias/RAW/v4/000/132/440/CEF82055-F13B-DF11-BF11-000423D9989E.root',
-'/store/data/Commissioning10/MinimumBias/RAW/v4/000/132/440/1CF54554-F13B-DF11-8BFB-000423D98BC4.root')
+#'/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/440/26C8DED9-0E3C-DF11-9D83-0030487CD7B4.root'),
+'/store/express/Commissioning10/ExpressPhysics/FEVT/v7/000/132/440/FED831D5-F03B-DF11-9C75-0030487D05B0.root',
+'/store/express/Commissioning10/ExpressPhysics/FEVT/v7/000/132/440/FED078E6-E63B-DF11-B17F-001D09F24763.root',
+'/store/express/Commissioning10/ExpressPhysics/FEVT/v7/000/132/440/FE290C8E-F83B-DF11-8C7D-001D09F2423B.root',
+'/store/express/Commissioning10/ExpressPhysics/FEVT/v7/000/132/440/FE28014B-E83B-DF11-9B06-001D09F24493.root',
+'/store/express/Commissioning10/ExpressPhysics/FEVT/v7/000/132/440/FCDF1B49-E83B-DF11-B789-001D09F2841C.root',
+'/store/express/Commissioning10/ExpressPhysics/FEVT/v7/000/132/440/FC7EB40D-F63B-DF11-8DFA-001D09F24EE3.root',
+'/store/express/Commissioning10/ExpressPhysics/FEVT/v7/000/132/440/FC2A72FC-E83B-DF11-AFE2-001D09F2432B.root',
+'/store/express/Commissioning10/ExpressPhysics/FEVT/v7/000/132/440/FC263E7C-F63B-DF11-B2E5-001D09F26509.root',
+'/store/express/Commissioning10/ExpressPhysics/FEVT/v7/000/132/440/FAF4FC91-EC3B-DF11-9E16-001D09F24664.root',
+'/store/express/Commissioning10/ExpressPhysics/FEVT/v7/000/132/440/FA9CAE79-F13B-DF11-A70B-001D09F251BD.root',
+'/store/express/Commissioning10/ExpressPhysics/FEVT/v7/000/132/440/FA0AF7DF-F23B-DF11-A48B-000423D9863C.root',
+'/store/express/Commissioning10/ExpressPhysics/FEVT/v7/000/132/440/F8171699-EC3B-DF11-B21C-001D09F28EC1.root'),
+                           secondaryFileNames = cms.untracked.vstring()
+#'/store/data/Commissioning10/MinimumBias/RAW/v4/000/132/440/CEF82055-F13B-DF11-BF11-000423D9989E.root',
+#'/store/data/Commissioning10/MinimumBias/RAW/v4/000/132/440/1CF54554-F13B-DF11-8BFB-000423D98BC4.root')
 )
 
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 
@@ -43,7 +55,9 @@ process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration/StandardSequences/Reconstruction_cff")
 process.load('Configuration/EventContent/EventContent_cff')
 
-process.FEVTEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')
+#drop collections created on the fly
+process.FEVTEventContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
+process.FEVTEventContent.outputCommands.append("drop *_*_*_SKIM")
 
 #
 #  Load common sequences
@@ -80,7 +94,7 @@ process.cscHaloSkim = cms.Path(process.hltBeamHalo+process.cscSkim)
 #### output 
 process.outputBeamHaloSkim = cms.OutputModule("PoolOutputModule",
     outputCommands = process.FEVTEventContent.outputCommands,
-    fileName = cms.untracked.string("/tmp/malgeri/MinBiascscskimEvents.root"),
+    fileName = cms.untracked.string("/tmp/azzi/MinBiascscskimEvents.root"),
     dataset = cms.untracked.PSet(
       dataTier = cms.untracked.string('RAW-RECO'),
       filterName = cms.untracked.string('CSCSkim_BeamHalo_MinBias')
@@ -159,8 +173,6 @@ process.l1RequestTecAlgos.L1SeedsLogicalExpression = cms.string('31')
 
 process.rpcTecSkim = cms.Path(process.l1RequestTecAlgos)
 
-process.load("DPGAnalysis.Skims.RPCRecHitFilter_cfi")
-process.rpcRHSkim = cms.Path(process.RPCRecHitsFilter)
 ###########################################################################
 
 
@@ -182,13 +194,13 @@ process.muonTracksSkim = cms.Path(process.muonSkim)
 
 
 process.outputMuonSkim = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/malgeri/MuonSkim.root'),
+    fileName = cms.untracked.string('/tmp/azzi/MuonSkim.root'),
     outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
     dataset = cms.untracked.PSet(
     	      dataTier = cms.untracked.string('RAW-RECO'),
     	      filterName = cms.untracked.string('Muon_skim')),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring("l1MuBitsSkim","dtHLTSkim","dtSkim","cscHLTSkim","cscSkimAlone","rpcRHSkim","rpcTecSkim","muonTracksSkim")
+        SelectEvents = cms.vstring("l1MuBitsSkim","dtHLTSkim","dtSkim","cscHLTSkim","cscSkimAlone","rpcTecSkim","muonTracksSkim")
     )
 )
 ####################################################################################
@@ -218,36 +230,13 @@ process.goodvertex=cms.Path(process.primaryVertexFilter+process.noscraping)
 
 
 process.collout = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/malgeri/good_coll.root'),
+    fileName = cms.untracked.string('/tmp/azzi/good_coll.root'),
     outputCommands = process.FEVTEventContent.outputCommands,
     dataset = cms.untracked.PSet(
     	      dataTier = cms.untracked.string('RAW-RECO'),
     	      filterName = cms.untracked.string('GOODCOLL')),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('goodvertex','l1tcollpath')
-    )
-)
-##################################beam backg filter#################################################
-process.L1T1bkgcross=process.hltLevel1GTSeed.clone()
-process.L1T1bkgcross.L1TechTriggerSeeding = cms.bool(True)
-process.L1T1bkgcross.L1SeedsLogicalExpression = cms.string('0 AND NOT (40 OR 41) AND ((36 OR 37 OR 38 OR 39) OR (42 AND NOT 43) OR (43 AND NOT 42))')
-
-process.l1tbkgcrosspath = cms.Path(process.L1T1bkgcross)
-
-process.L1T1bkgnocross=process.hltLevel1GTSeed.clone()
-process.L1T1bkgnocross.L1TechTriggerSeeding = cms.bool(True)
-process.L1T1bkgnocross.L1SeedsLogicalExpression = cms.string('NOT 0 AND NOT 7 AND (36 OR 37 OR 38 OR 39 OR 40 OR 41 OR 42 OR 43 OR 8 OR 9 OR 10)')
-
-process.l1tbkgnocrosspath = cms.Path(process.L1T1bkgnocross)
-
-process.bkgout = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/malgeri/bkg.root'),
-    outputCommands = process.FEVTEventContent.outputCommands,
-    dataset = cms.untracked.PSet(
-    	      dataTier = cms.untracked.string('RAW-RECO'),
-    	      filterName = cms.untracked.string('BEAMBKG')),
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('l1tbkgcrosspath','l1tbkgnocrosspath')
     )
 )
 
@@ -259,7 +248,7 @@ process.ecalrechitfilter = cms.Path(process.recHitEnergyFilter)
 
 
 process.ecalrechitfilter_out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/malgeri/ecalrechitfilter.root'),
+    fileName = cms.untracked.string('/tmp/azzi/ecalrechitfilter.root'),
     outputCommands = process.FEVTEventContent.outputCommands,
     dataset = cms.untracked.PSet(
     	      dataTier = cms.untracked.string('RAW-RECO'),
@@ -286,7 +275,7 @@ process.HSCP=cms.Path(process.hltstoppedhscp)
 
 process.outHSCP = cms.OutputModule("PoolOutputModule",
                                outputCommands =  process.FEVTEventContent.outputCommands,
-                               fileName = cms.untracked.string('/tmp/malgeri/StoppedHSCP_filter.root'),
+                               fileName = cms.untracked.string('/tmp/azzi/StoppedHSCP_filter.root'),
                                dataset = cms.untracked.PSet(
                                   dataTier = cms.untracked.string('RAW-RECO'),
                                   filterName = cms.untracked.string('Skim_StoppedHSCP')),
@@ -295,7 +284,86 @@ process.outHSCP = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.vstring("HSCP")
     ))
 
+##########################################################################################
+#------------------------------------------
+# parameters for the PFGCollisions skim (skim2)
+#------------------------------------------
+process.load('HLTrigger.special.hltPhysicsDeclared_cfi')
+process.hltPhysicsDeclared.L1GtReadoutRecordTag = 'gtDigis'
 
+process.L1PFGcoll=process.hltLevel1GTSeed.clone()
+process.L1PFGcoll.L1TechTriggerSeeding = cms.bool(True)
+process.L1PFGcoll.L1SeedsLogicalExpression = cms.string('(36 OR 37 OR 38 OR 39 OR 40 OR 41 OR 42 OR 43 OR 8 OR 9 OR 10 OR 32 OR 33) AND 0')
+
+
+process.pixprob = cms.EDFilter("FilterScrapingPixelProbability",
+                                apply_filter                 = cms.untracked.bool( True  ),
+                                select_collision             = cms.untracked.bool( True ),
+                                select_pkam                  = cms.untracked.bool( False ),
+                                select_other                 = cms.untracked.bool( False ),
+                                low_probability              = cms.untracked.double( 0.0 ),
+                                low_probability_fraction_cut = cms.untracked.double( 0.4 )
+                                )
+
+#### the path
+process.pfgskim2_a = cms.Path(process.hltPhysicsDeclared+process.L1PFGcoll*process.pixprob*~process.L1T1coll*~process.primaryVertexFilter)
+process.pfgskim2_b = cms.Path(process.hltPhysicsDeclared+process.L1PFGcoll*process.pixprob*~process.L1T1coll*~process.noscraping)
+
+#### output 
+process.outputpfgskim2 = cms.OutputModule("PoolOutputModule",
+    outputCommands = process.FEVTEventContent.outputCommands,
+    fileName = cms.untracked.string("/tmp/azzi/PGFSkim2.root"),
+    dataset = cms.untracked.PSet(
+      dataTier = cms.untracked.string('RAW-RECO'),
+      filterName = cms.untracked.string('PFGSkim2')
+    ),
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('pfgskim2_a','pfgskim2_b'))
+)
+
+###########################################################################################
+#------------------------------------------
+# parameters for the PFGCollisions skim (skim3)
+#------------------------------------------
+
+
+process.L1PFGbackcross=process.hltLevel1GTSeed.clone()
+process.L1PFGbackcross.L1TechTriggerSeeding = cms.bool(True)
+process.L1PFGbackcross.L1SeedsLogicalExpression = cms.string('0 AND (36 OR 37 OR 38 OR 39 OR 40 OR 41 OR 42 OR 43 OR 8 OR 9 OR 10 OR 32 OR 33)')
+
+process.L1PFGbacknoncross=process.hltLevel1GTSeed.clone()
+process.L1PFGbacknoncross.L1TechTriggerSeeding = cms.bool(True)
+process.L1PFGbacknoncross.L1SeedsLogicalExpression = cms.string('NOT 0 AND NOT 7 AND (36 OR 37 OR 38 OR 39 OR 40 OR 41 OR 42 OR 43 OR 8 OR 9 OR 10 OR 32 OR 33)')
+
+
+process.skimmingpixback = cms.EDFilter("FilterScrapingPixelProbability",
+                                apply_filter                 = cms.untracked.bool( True  ),
+                                select_collision             = cms.untracked.bool( False ),
+                                select_pkam                  = cms.untracked.bool( True ),
+                                select_other                 = cms.untracked.bool( True ),
+                                low_probability              = cms.untracked.double( 0.0 ),
+                                low_probability_fraction_cut = cms.untracked.double( 0.4 )
+                                )
+
+
+#### the path
+process.pfgskim3cross = cms.Path(process.hltPhysicsDeclared*process.L1PFGbackcross*process.skimmingpixback)
+process.pfgskim3noncross = cms.Path(process.hltPhysicsDeclared*process.L1PFGbacknoncross)
+
+
+
+#### output 
+process.outputpfgskim3 = cms.OutputModule("PoolOutputModule",
+    outputCommands = process.FEVTEventContent.outputCommands,
+    fileName = cms.untracked.string("/tmp/azzi/Background.root"),
+    dataset = cms.untracked.PSet(
+      dataTier = cms.untracked.string('RAW-RECO'),
+      filterName = cms.untracked.string('BEAMBKGV2')
+    ),
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('pfgskim3cross','pfgskim3noncross'))
+)
+
+###########################################################################################
+###########################################################################################
 
 #===========================================================
 
@@ -306,7 +374,7 @@ process.logerrorpath=cms.Path(process.logErrorFilter)
 
 process.outlogerr = cms.OutputModule("PoolOutputModule",
                                outputCommands =  process.FEVTEventContent.outputCommands,
-                               fileName = cms.untracked.string('/tmp/malgeri/logerror_filter.root'),
+                               fileName = cms.untracked.string('/tmp/azzi/logerror_filter.root'),
                                dataset = cms.untracked.PSet(
                                   dataTier = cms.untracked.string('RAW-RECO'),
                                   filterName = cms.untracked.string('Skim_logerror')),
@@ -315,15 +383,64 @@ process.outlogerr = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.vstring("logerrorpath")
     ))
 
-
-
 #===========================================================
+###########################ngood event per lumi##########################################
 
+###Tracks selection
+process.trackSelector  =cms.EDFilter("TrackSelector",
+                                    src = cms.InputTag("generalTracks"),
+                                     cut = cms.string('quality("highPurity")')     
+                                     )
+
+#process.trackSelector = cms.EDProducer("QualityFilter",
+#                                       TrackQuality = cms.string('highPurity'),
+#                                       recTracks = cms.InputTag("generalTracks")
+#                                       )
+
+process.trackFilter = cms.EDFilter("TrackCountFilter",
+                                   src = cms.InputTag("trackSelector"),
+                                   minNumber = cms.uint32(10)
+                                   )
+
+process.nottoomanytracks = cms.EDFilter("NMaxPerLumi",
+                                        nMaxPerLumi = cms.uint32(8)
+                                        )
+process.relvaltrackskim = cms.Path(process.primaryVertexFilter+process.noscraping+
+                                   process.trackSelector + process.trackFilter + process.nottoomanytracks )
+
+### muon selection
+process.muonSelector = cms.EDFilter("MuonSelector",
+                                    src = cms.InputTag("muons"),
+                                    cut = cms.string(" isGlobalMuon && isTrackerMuon && pt > 3")
+                                    )
+process.muonFilter = cms.EDFilter("MuonCountFilter",
+                                  src = cms.InputTag("muonSelector"),
+                                  minNumber = cms.uint32(1)
+                                  )
+process.nottoomanymuons = cms.EDFilter("NMaxPerLumi",
+                                       nMaxPerLumi = cms.uint32(2)
+                                       )
+process.relvalmuonskim = cms.Path(process.primaryVertexFilter+process.noscraping+
+                                  process.muonSelector + process.muonFilter + process.nottoomanymuons )
+
+#### output 
+process.outputvalskim = cms.OutputModule("PoolOutputModule",
+                                         outputCommands = process.FEVTEventContent.outputCommands,
+                                         fileName = cms.untracked.string("/tmp/azzi/ValSkim.root"),
+                                         dataset = cms.untracked.PSet(
+    dataTier = cms.untracked.string('RAW-RECO'),
+    filterName = cms.untracked.string('valskim')
+    ),
+                                         SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('relvaltrackskim','relvalmuonskim')
+                                                                           ))
+
+
+###########################################################################
 process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
-process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.bkgout+process.outHSCP+process.ecalrechitfilter_out+process.outlogerr)
+process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.outHSCP+process.ecalrechitfilter_out+process.outputpfgskim2+process.outputpfgskim3+process.outlogerr+process.outputvalskim)
 
 
 
