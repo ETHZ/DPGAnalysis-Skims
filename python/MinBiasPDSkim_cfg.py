@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.29 $'),
+    version = cms.untracked.string('$Revision: 1.30 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -38,7 +38,7 @@ process.source = cms.Source("PoolSource",
 '/store/data/Run2010A/MinimumBias/RAW/v1/000/136/066/38D48BED-3C66-DF11-88A5-001D09F27003.root')
 )
 
-process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
+process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(50)
@@ -289,8 +289,15 @@ process.outputpfgskim3 = cms.OutputModule("PoolOutputModule",
 
 #################################logerrorharvester############################################
 process.load("FWCore.Modules.logErrorFilter_cfi")
+from Configuration.StandardSequences.RawToDigi_cff import gtEvmDigis
 
-process.logerrorpath=cms.Path(process.logErrorFilter)
+process.gtEvmDigis = gtEvmDigis.clone()
+process.stableBeam = cms.EDFilter("HLTBeamModeFilter",
+                                  L1GtEvmReadoutRecordTag = cms.InputTag("gtEvmDigis"),
+                                  AllowedBeamMode = cms.vuint32(11)
+                                  )
+
+process.logerrorpath=cms.Path(process.gtEvmDigis+process.stableBeam+process.logErrorFilter)
 
 process.outlogerr = cms.OutputModule("PoolOutputModule",
                                outputCommands =  process.FEVTEventContent.outputCommands,
