@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.30.2.2 $'),
+    version = cms.untracked.string('$Revision: 1.27 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -38,7 +38,7 @@ process.source = cms.Source("PoolSource",
 '/store/data/Run2010A/MinimumBias/RAW/v1/000/136/066/38D48BED-3C66-DF11-88A5-001D09F27003.root')
 )
 
-process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
+process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -53,7 +53,7 @@ process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR_R_36X_V12B::All' 
+process.GlobalTag.globaltag = 'GR10_P_V6::All' 
 
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration/StandardSequences/Reconstruction_cff")
@@ -209,6 +209,22 @@ process.outputMuonDPGSkim = cms.OutputModule("PoolOutputModule",
 )
 ####################################################################################
 
+##################################filter_rechit for ECAL############################################
+process.load("DPGAnalysis.Skims.filterRecHits_cfi")
+
+process.ecalrechitfilter = cms.Path(process.recHitEnergyFilter)
+
+
+process.ecalrechitfilter_out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('/tmp/malgeri/ecalrechitfilter.root'),
+    outputCommands = process.FEVTEventContent.outputCommands,
+    dataset = cms.untracked.PSet(
+    	      dataTier = cms.untracked.string('RAW-RECO'),
+    	      filterName = cms.untracked.string('ECALRECHIT')),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('ecalrechitfilter')
+    )
+)
 
 ####################################################################################
 ##################################stoppedHSCP############################################
@@ -273,15 +289,8 @@ process.outputpfgskim3 = cms.OutputModule("PoolOutputModule",
 
 #################################logerrorharvester############################################
 process.load("FWCore.Modules.logErrorFilter_cfi")
-from Configuration.StandardSequences.RawToDigi_Data_cff import gtEvmDigis
 
-process.gtEvmDigis = gtEvmDigis.clone()
-process.stableBeam = cms.EDFilter("HLTBeamModeFilter",
-                                  L1GtEvmReadoutRecordTag = cms.InputTag("gtEvmDigis"),
-                                  AllowedBeamMode = cms.vuint32(11)
-                                  )
-
-process.logerrorpath=cms.Path(process.gtEvmDigis+process.stableBeam+process.logErrorFilter)
+process.logerrorpath=cms.Path(process.logErrorFilter)
 
 process.outlogerr = cms.OutputModule("PoolOutputModule",
                                outputCommands =  process.FEVTEventContent.outputCommands,
@@ -394,7 +403,7 @@ process.outTPGSkim = cms.OutputModule("PoolOutputModule",
     outputCommands = process.FEVTHLTALLEventContent.outputCommands,
     fileName = cms.untracked.string("/tmp/malgeri/TPGSkim.root"),
     dataset = cms.untracked.PSet(
-      dataTier = cms.untracked.string('USER'),
+      dataTier = cms.untracked.string('TriggerTest'),
       filterName = cms.untracked.string('TPGSkim')
     ),
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring(
@@ -426,7 +435,7 @@ process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
-process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonDPGSkim+process.outHSCP+process.outputpfgskim3+process.outlogerr+process.outputvalskim+process.outTPGSkim)
+process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonDPGSkim+process.outHSCP+process.ecalrechitfilter_out+process.outputpfgskim3+process.outlogerr+process.outputvalskim+process.outTPGSkim)
 
 
 
