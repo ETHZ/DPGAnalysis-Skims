@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import dtunpacker
 
-muonDTDigisforDTActivitySkim = dtunpacker.clone()
+muonDTDigis = dtunpacker.clone()
 
 import HLTrigger.special.hltDTActivityFilter_cfi
 
 hltDTActivityFilter = HLTrigger.special.hltDTActivityFilter_cfi.hltDTActivityFilter.clone(
    inputDCC         = cms.InputTag( "dttfDigis" ),
-    inputDDU         = cms.InputTag( "muonDTDigisforDTActivitySkim" ),
+    inputDDU         = cms.InputTag( "muonDTDigis" ),
     inputRPC         = cms.InputTag( "hltGtDigis" ),
     inputDigis       = cms.InputTag( "muonDTDigis" ),
     processDCC       = cms.bool( False ),
@@ -46,4 +46,4 @@ HLTDT =cms.EDFilter("HLTHighLevel",
 
 dtHLTSkimseq = cms.Sequence(HLTDT)
 
-dtSkimseq=cms.Sequence(muonDTDigisforDTActivitySkim+hltDTActivityFilter)
+dtSkimseq=cms.Sequence(muonDTDigis+hltDTActivityFilter)
