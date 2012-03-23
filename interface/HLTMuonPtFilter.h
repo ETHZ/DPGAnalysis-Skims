@@ -5,7 +5,7 @@
  *
  * HLTFilter to select muons above certain Pt
  *
- * $Date: 2009/02/13 15:37:48 $
+ * $Date: 2009/13/02 16:21:14 $
  * $Revision: 1.1 $
  * \author Silvia Goy Lopez - CERN <silvia.goy.lopez@cern.ch>
  *
@@ -35,7 +35,7 @@ class HLTMuonPtFilter : public HLTFilter {
     ~HLTMuonPtFilter() ;
 
 /* Operations */ 
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+    virtual bool filter(edm::Event&, const edm::EventSetup&);
 
   private:
     std::string theSTAMuonLabel; // label of muons 
