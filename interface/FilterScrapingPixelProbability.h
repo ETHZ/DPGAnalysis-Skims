@@ -38,6 +38,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 class FilterScrapingPixelProbability : public edm::EDFilter 
