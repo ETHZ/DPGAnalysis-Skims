@@ -82,6 +82,26 @@ tagGsfCounter = cms.EDFilter("CandViewCountFilter",
     minNumber = cms.uint32(1)
     )
 tagGsfFilter = cms.Sequence(tagGsf * tagGsfCounter)
-tagGsfSeq = cms.Sequence( ZEEHltFilter * Zele_sequence * tagGsfFilter )  
-#tagGsfSeq = cms.Sequence( ZEEHltFilter * Zele_sequence )  
-#tagGsfSeq = cms.Sequence( ZEEHltFilter )  
+tagGsfSeq = cms.Sequence( ZEEHltFilter * Zele_sequence * tagGsfFilter )
+ZSkimSeq = cms.Sequence( ZEEHltFilter * Zele_sequence * tagGsfFilter )  
+
+
+#################################### FOR ELE+SC absEta>2.4
+SCselector = cms.EDFilter("SuperClusterSelector",
+                          src = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'),
+                          cut = cms.string('(eta>2.3 || eta<-2.3) && (energy*sin(theta)> 20')
+                          )
+eleSC = cms.EDProducer("CandViewShallowCloneCombiner",
+    decay = cms.string("PassingTightId SCselector"),
+    checkCharge = cms.bool(False), 
+    cut   = cms.string("mass > 60 && mass < 140")
+    )
+
+eleSCCounter = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("eleSC"),
+    minNumber = cms.uint32(1)
+    )
+
+ZSCFilter = cms.Sequence(eleSCCounter)
+ZSCSkimSeq    = cms.Sequence(Zele_sequence * eleSC * eleSCCounter)
+
